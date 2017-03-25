@@ -1,5 +1,5 @@
 #!/usr/bin/python
-
+import sys
 import time
 try:
     import RPi.GPIO as GPIO
@@ -133,8 +133,9 @@ def spinRight(seconds=0):
     stopall()
 
 
-forward(2.5, 35)
-backward(1.5, 55)
+# forward(2.5, 35)
+# forward(2, 40)
+print sys.argv[1:]
 
 
 
