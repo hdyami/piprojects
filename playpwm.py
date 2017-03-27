@@ -104,8 +104,8 @@ def turnLeft(seconds=0):
     time.sleep(seconds)
     stop()
 
-def spinLeft(seconds=0):
-    print "spinLeft"
+def spinRight(seconds=0, dutyCycle=0):
+    print "spinRight"
     GPIO.output(SLP, GPIO.HIGH)
 
     # set enA on, set BIN1 off and BIN2 on
@@ -118,11 +118,10 @@ def spinLeft(seconds=0):
     time.sleep(seconds)
     stopall()
 
-def spinRight(seconds=0):
-    print "spinRight"
+def spinLeft(seconds=0, dutyCycle=0):
+    print "spinLeft"
     GPIO.output(SLP, GPIO.HIGH)
     # set enA on, set BIN1 off and BIN2 on
-    GPIO.output(SLP, GPIO.HIGH)
 
     GPIO.output(BIN1, GPIO.LOW)
     BIN2_pwm.ChangeDutyCycle(dutyCycle)
@@ -133,13 +132,11 @@ def spinRight(seconds=0):
     stopall()
 
 
-# forward(2.5, 35)
-# forward(2, 40)
-print sys.argv[1:]
+# backward(3, 65)
+# forward(6, 80)
+# print sys.argv[1:]
 
-
-
-# spinLeft(1.5)
-# spinRight(1.5)
+# spinLeft(1.5, 50)
+# spinRight(.5, 30)
 
 GPIO.cleanup()
