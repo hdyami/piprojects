@@ -50,8 +50,9 @@ def forward(seconds=0, dutyCycle=0):
     AIN1_pwm.ChangeDutyCycle(dutyCycle)
 
     time.sleep(seconds)
-
-    stopall();
+    BIN1_pwm.stop()
+    AIN1_pwm.stop()
+    stopall()
 
 def backward(seconds=0, dutyCycle=0):
     print "backward"
@@ -64,6 +65,8 @@ def backward(seconds=0, dutyCycle=0):
     GPIO.output(AIN1, GPIO.LOW)
     time.sleep(seconds)
 
+    BIN2_pwm.stop()
+    AIN2_pwm.stop()
     stopall()
 
 def stopall():
@@ -116,6 +119,8 @@ def spinRight(seconds=0, dutyCycle=0):
     GPIO.output(AIN1, GPIO.LOW) 
 
     time.sleep(seconds)
+    BIN1_pwm.stop()
+    AIN2_pwm.stop()
     stopall()
 
 def spinLeft(seconds=0, dutyCycle=0):
@@ -129,10 +134,12 @@ def spinLeft(seconds=0, dutyCycle=0):
     AIN1_pwm.ChangeDutyCycle(dutyCycle)
 
     time.sleep(seconds)
+    BIN2_pwm.stop()
+    AIN1_pwm.stop()
     stopall()
 
 
-# backward(3, 65)
+forward(1, 65)
 # forward(6, 80)
 # print sys.argv[1:]
 
