@@ -43,31 +43,33 @@ def forward(seconds=0, dutyCycle=0):
     print "forward"
     GPIO.output(SLP, GPIO.HIGH)
 
+    BIN1_pwm.start(0)
     BIN1_pwm.ChangeDutyCycle(dutyCycle)
     GPIO.output(BIN2, GPIO.LOW)
 
     GPIO.output(AIN2, GPIO.LOW)
+    AIN1_pwm.start(0)
     AIN1_pwm.ChangeDutyCycle(dutyCycle)
 
     time.sleep(seconds)
     BIN1_pwm.stop()
     AIN1_pwm.stop()
-    stopall()
 
 def backward(seconds=0, dutyCycle=0):
     print "backward"
     GPIO.output(SLP, GPIO.HIGH)
 
     GPIO.output(BIN1, GPIO.LOW)
+    BIN2_pwm.start(0)
     BIN2_pwm.ChangeDutyCycle(dutyCycle)
 
+    AIN2_pwm.start(0)
     AIN2_pwm.ChangeDutyCycle(dutyCycle)
     GPIO.output(AIN1, GPIO.LOW)
     time.sleep(seconds)
 
     BIN2_pwm.stop()
     AIN2_pwm.stop()
-    stopall()
 
 def stopall():
     print "stop"
@@ -81,10 +83,6 @@ def stopall():
     GPIO.output(AIN2, GPIO.LOW)
     GPIO.output(AIN1, GPIO.LOW)
     
-    BIN2_pwm.stop()
-    AIN2_pwm.stop()
-    AIN1_pwm.stop()
-    BIN1_pwm.stop()
     # coasting
     # set enA off, set BIN1 off and BIN2 off
     # set SLP off, set AIN2 off and AIN1 off
@@ -129,21 +127,24 @@ def spinLeft(seconds=0, dutyCycle=0):
     # set enA on, set BIN1 off and BIN2 on
 
     GPIO.output(BIN1, GPIO.LOW)
+    BIN2_pwm.start(0)
     BIN2_pwm.ChangeDutyCycle(dutyCycle)
     GPIO.output(AIN2, GPIO.LOW)
+    AIN1_pwm.start(0)
     AIN1_pwm.ChangeDutyCycle(dutyCycle)
 
     time.sleep(seconds)
+   
     BIN2_pwm.stop()
     AIN1_pwm.stop()
-    stopall()
+    GPIO.output(BIN1, GPIO.LOW)
+    GPIO.output(AIN2, GPIO.LOW)
 
-
-forward(1, 65)
-# forward(6, 80)
+forward(3, 45)
+spinLeft(.5, 40)
+backward(3, 45)
 # print sys.argv[1:]
 
-# spinLeft(1.5, 50)
-# spinRight(.5, 30)
+#spinRight(.5, 55)
 
 GPIO.cleanup()

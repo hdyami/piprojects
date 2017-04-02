@@ -1,50 +1,56 @@
+#!/usr/bin/env python
+# vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
 import sys
 import time
 import simplejson as json
 try:
-    import RPi.GPIO as GPIO
+    import RPi.GPIO as io
 except RuntimeError:
-    print("Error importing RPi.GPIO!  This is probably because you need superuser privileges.  You can achieve this by using 'sudo' to run your script")
+    print("Error importing RPi.io!  This is probably because you need superuser privileges.  You can achieve this by using 'sudo' to run your script")
 from flask import Flask
 from flask import request
 from pprint import pprint
 
 app = Flask(__name__)
 
-@app.route('/forward', methods=['POST', 'GET'])
-def forward(secs=0, dC=0):
-    if request.method == 'POST':
-        url_args = request.args.get('seconds','dutyCycle')
-        pprint(url_args)
+@app.route('/forward/<int:dC>/<int:seconds>')
+def forward(dC,seconds):
+    io.output(SLP, io.HIGH)
+    BIN1_pwm.start(0)
+    AIN1_pwm.start(0)
 
-        # print "aha"
-    # GPIO.output(SLP, GPIO.HIGH)
+    BIN1_pwm.ChangeDutyCycle(dC)
+    io.output(BIN2, io.LOW)
 
-    # BIN1_pwm.ChangeDutyCycle(dutyCycle)
-    # GPIO.output(BIN2, GPIO.LOW)
+    io.output(AIN2, io.LOW)
+    AIN1_pwm.ChangeDutyCycle(dC)
 
-    # GPIO.output(AIN2, GPIO.LOW)
-    # AIN1_pwm.ChangeDutyCycle(dutyCycle)
-
-    # time.sleep(seconds)
-
-    # stopall();
-
-    return 'forward'
-
-@app.route('/backward')
-def backward(seconds=3, dutyCycle=70):
-    print "backward"
-    GPIO.output(SLP, GPIO.HIGH)
-
-    GPIO.output(BIN1, GPIO.LOW)
-    BIN2_pwm.ChangeDutyCycle(dutyCycle)
-
-    AIN2_pwm.ChangeDutyCycle(dutyCycle)
-    GPIO.output(AIN1, GPIO.LOW)
     time.sleep(seconds)
 
-    stopall()
+    io.output(SLP, io.LOW)
+    BIN1_pwm.stop()
+    AIN1_pwm.stop()
+
+    return "forward"
+
+@app.route('/backward/<int:dC>/<int:seconds>')
+def backward(dC,seconds):
+    print "backward"
+    io.output(SLP, io.HIGH)
+    BIN2_pwm.start(0)
+    AIN2_pwm.start(0)
+
+
+    io.output(BIN1, io.LOW)
+    BIN2_pwm.ChangeDutyCycle(dC)
+
+    AIN2_pwm.ChangeDutyCycle(dC)
+    io.output(AIN1, io.LOW)
+    time.sleep(seconds)
+    
+    io.output(SLP, io.LOW)
+    BIN2_pwm.stop()
+    AIN2_pwm.stop()
 
     return "backward"
 
@@ -52,18 +58,13 @@ def stopall():
     print "stop"
     # Motor breaking
     # set SLP on, set AIN2 off and AIN1 off
-    GPIO.output(SLP, GPIO.LOW)
+    io.output(SLP, io.LOW)
 
-    GPIO.output(BIN1, GPIO.LOW)
-    GPIO.output(BIN2, GPIO.LOW) 
+    io.output(BIN1, io.LOW)
+    io.output(BIN2, io.LOW) 
 
-    GPIO.output(AIN2, GPIO.LOW)
-    GPIO.output(AIN1, GPIO.LOW)
-    
-    BIN2_pwm.stop()
-    AIN2_pwm.stop()
-    AIN1_pwm.stop()
-    BIN1_pwm.stop()
+    io.output(AIN2, io.LOW)
+    io.output(AIN1, io.LOW)
     # coasting
     # set enA off, set BIN1 off and BIN2 off
     # set SLP off, set AIN2 off and AIN1 off
@@ -79,7 +80,7 @@ def pibot():
 
 if __name__ == "__main__":
     # adafruit drv8833 breakout
-    GPIO.setmode(GPIO.BCM)
+    io.setmode(io.BCM)
 
     # Define Outputs to motors A and B SLP must be driven high to enable.
     BIN1 = 26
@@ -89,22 +90,27 @@ if __name__ == "__main__":
     AIN1 = 5
 
     # initialize pwm so we only have to do ChangeDutyCycle later
-    GPIO.setup(BIN1, GPIO.OUT)
-    BIN1_pwm=GPIO.PWM(BIN1,100)
-    BIN1_pwm.start(0)
+    io.setup(BIN1, io.OUT)
+    BIN1_pwm=io.PWM(BIN1,100)
+    # BIN1_pwm.start(0)
 
-    GPIO.setup(BIN2, GPIO.OUT)
-    BIN2_pwm=GPIO.PWM(BIN2,100)
-    BIN2_pwm.start(0)
+    io.setup(BIN2, io.OUT)
+    BIN2_pwm=io.PWM(BIN2,100)
+    # BIN2_pwm.start(0)
 
-    GPIO.setup(SLP, GPIO.OUT)
+    io.setup(SLP, io.OUT)
 
-    GPIO.setup(AIN2, GPIO.OUT)
-    AIN2_pwm=GPIO.PWM(AIN2,100)
-    AIN2_pwm.start(0)
+    io.setup(AIN2, io.OUT)
+    AIN2_pwm=io.PWM(AIN2,100)
+    # AIN2_pwm.start(0)
 
-    GPIO.setup(AIN1, GPIO.OUT)
-    AIN1_pwm=GPIO.PWM(AIN1,100)
-    AIN1_pwm.start(0)
+    io.setup(AIN1, io.OUT)
+    AIN1_pwm=io.PWM(AIN1,100)
+    # AIN1_pwm.start(0)
     
-    app.run(host='0.0.0.0')
+    # ahhhh this calls the flask app! duhhhhh
+    # only needed if invoking via python -m, not needed if invoked via flask run
+    app.run(host='192.168.2.30', debug=True)
+    io.cleanup()
+
+# pibot_init()
