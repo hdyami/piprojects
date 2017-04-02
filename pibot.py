@@ -46,6 +46,7 @@ def backward(dC,seconds):
 
     AIN2_pwm.ChangeDutyCycle(dC)
     io.output(AIN1, io.LOW)
+
     time.sleep(seconds)
     
     io.output(SLP, io.LOW)
@@ -54,21 +55,46 @@ def backward(dC,seconds):
 
     return "backward"
 
-def stopall():
-    print "stop"
-    # Motor breaking
-    # set SLP on, set AIN2 off and AIN1 off
+@app.route('/spinRight/<int:dC>/<int:seconds>')
+def spinRight(dC,seconds):
+    print "spinRight"
+    io.output(SLP, io.HIGH)
+    BIN1_pwm.start(0)
+    AIN2_pwm.start(0)
+
+    io.output(BIN2, io.LOW)
+    BIN1_pwm.ChangeDutyCycle(dC)
+    io.output(AIN1, io.LOW)
+    AIN2_pwm.ChangeDutyCycle(dC)
+
+    time.sleep(seconds)
+
     io.output(SLP, io.LOW)
+    BIN1_pwm.stop()
+    AIN2_pwm.stop()
+
+    return "spinRight"
+
+@app.route('/spinLeft/<int:dC>/<int:seconds>')
+def spinLeft(dC,seconds):
+    print "spinLeft"
+    io.output(SLP, io.HIGH)
+    BIN2_pwm.start(0)
+    AIN1_pwm.start(0)
 
     io.output(BIN1, io.LOW)
-    io.output(BIN2, io.LOW) 
-
+    BIN2_pwm.ChangeDutyCycle(dC)
     io.output(AIN2, io.LOW)
-    io.output(AIN1, io.LOW)
-    # coasting
-    # set enA off, set BIN1 off and BIN2 off
-    # set SLP off, set AIN2 off and AIN1 off
-  
+    AIN1_pwm.ChangeDutyCycle(dC)
+
+    time.sleep(seconds)
+
+    io.output(SLP, io.LOW)
+    BIN2_pwm.stop()
+    AIN1_pwm.stop()
+
+    return "spinLeft"
+
 @app.route('/')
 def hello_world():
     return 'Hello, World!'
