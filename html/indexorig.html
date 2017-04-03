@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>pibot</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script>
+
+</script>
+
+</head>
+
+<body>
+<script type="text/javascript">
+
+if (window.DeviceOrientationEvent) {
+    window.addEventListener("deviceorientation", function () {
+    	$("h1.first").html("<div class='alpha'>"+event.alpha+"</div>")
+    	$("h1.second").html("<div class='beta'>"+event.beta+"</div>")
+    	$("h1.third").html("<div class='gamma'>"+event.gamma+"</div>")
+    }, true);
+} else if (window.DeviceMotionEvent) {
+    window.addEventListener('devicemotion', function () {
+        console.log(event.acceleration.x * 2);
+        console.log(event.acceleration.y * 2);
+    }, true);
+} else {
+    window.addEventListener("MozOrientation", function () {
+        tilt([orientation.x * 50, orientation.y * 50]);
+    }, true);
+}
+$.ajax({
+  type: "POST",
+  url: url,
+  data: data,
+  success: success,
+  dataType: dataType
+});
+
+</script>
+</body>
+<h1 class="first"></h1>
+<h1 class="second"></h1>
+<h1 class="third"></h1>
+
+</html>

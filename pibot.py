@@ -13,50 +13,57 @@ from pprint import pprint
 
 app = Flask(__name__)
 
-@app.route('/forward/<int:dC>/<int:seconds>')
-def forward(dC,seconds):
-    io.output(SLP, io.HIGH)
-    BIN1_pwm.start(0)
-    AIN1_pwm.start(0)
-
-    BIN1_pwm.ChangeDutyCycle(dC)
-    io.output(BIN2, io.LOW)
-
-    io.output(AIN2, io.LOW)
-    AIN1_pwm.ChangeDutyCycle(dC)
-
-    time.sleep(seconds)
-
+# stop all gpio
+@app.route('/stop')
+def stop():
     io.output(SLP, io.LOW)
+
+    io.output(BIN2, io.LOW)
+    io.output(BIN1, io.LOW)
+    io.output(AIN1, io.LOW)
+    io.output(AIN2, io.LOW)
+
+    BIN2_pwm.stop()
+    AIN2_pwm.stop()
     BIN1_pwm.stop()
     AIN1_pwm.stop()
 
+    return "stop"
+
+
+@app.route('/forward/<int:dC>')
+def forward(dC):
+    print "forward"
+    # set enable pin high
+    io.output(SLP, io.HIGH)
+    # start pwm to both motors at 0 duty cycle
+    BIN1_pwm.start(0)
+    AIN1_pwm.start(0)
+    # set duty cycle to whatever we pass as argument
+    BIN1_pwm.ChangeDutyCycle(dC)
+    # drive the other pole of our dc motor low
+    io.output(BIN2, io.LOW)
+    io.output(AIN2, io.LOW)
+    AIN1_pwm.ChangeDutyCycle(dC)
+
     return "forward"
 
-@app.route('/backward/<int:dC>/<int:seconds>')
-def backward(dC,seconds):
+@app.route('/backward/<int:dC>')
+def backward(dC):
     print "backward"
     io.output(SLP, io.HIGH)
     BIN2_pwm.start(0)
     AIN2_pwm.start(0)
 
-
     io.output(BIN1, io.LOW)
     BIN2_pwm.ChangeDutyCycle(dC)
-
     AIN2_pwm.ChangeDutyCycle(dC)
     io.output(AIN1, io.LOW)
 
-    time.sleep(seconds)
-    
-    io.output(SLP, io.LOW)
-    BIN2_pwm.stop()
-    AIN2_pwm.stop()
-
     return "backward"
 
-@app.route('/spinRight/<int:dC>/<int:seconds>')
-def spinRight(dC,seconds):
+@app.route('/spinRight/<int:dC>')
+def spinRight(dC):
     print "spinRight"
     io.output(SLP, io.HIGH)
     BIN1_pwm.start(0)
@@ -67,16 +74,10 @@ def spinRight(dC,seconds):
     io.output(AIN1, io.LOW)
     AIN2_pwm.ChangeDutyCycle(dC)
 
-    time.sleep(seconds)
-
-    io.output(SLP, io.LOW)
-    BIN1_pwm.stop()
-    AIN2_pwm.stop()
-
     return "spinRight"
 
-@app.route('/spinLeft/<int:dC>/<int:seconds>')
-def spinLeft(dC,seconds):
+@app.route('/spinLeft/<int:dC>')
+def spinLeft(dC):
     print "spinLeft"
     io.output(SLP, io.HIGH)
     BIN2_pwm.start(0)
@@ -86,12 +87,6 @@ def spinLeft(dC,seconds):
     BIN2_pwm.ChangeDutyCycle(dC)
     io.output(AIN2, io.LOW)
     AIN1_pwm.ChangeDutyCycle(dC)
-
-    time.sleep(seconds)
-
-    io.output(SLP, io.LOW)
-    BIN2_pwm.stop()
-    AIN1_pwm.stop()
 
     return "spinLeft"
 
