@@ -26,38 +26,38 @@
       <div class="btn-toolbar" role="toolbar">
         <!-- first row -->
         <div class="btn-group btn-group-lg btn-group-justified btn-group-fill-height">
+          <a href="#" class="btn btn-default stop" role="button" style="height:100px">
+            <strong>Stop</strong><br>
+          </a>
           <a href="#" class="btn btn-primary forward" role="button" style="height:100px">
             <strong>Forward</strong><br>
           </a>
-          <a href="#" class="btn btn-danger stop" role="button" style="height:100px">
+          <a href="#" class="btn btn-default stop" role="button" style="height:100px">
             <strong>Stop</strong><br>
-          </a>
-          <a href="#" class="btn btn-primary backward" role="button" style="height:100px">
-            <strong>Backward</strong><br>
           </a>
         </div>
         <!-- second row -->
         <div class="btn-group btn-group-lg btn-group-justified btn-group-fill-height">
-          <a href="#" class="btn btn-primary forward" role="button" style="height:100px">
-            <strong>Forward</strong><br>
+          <a href="#" class="btn btn-primary spinLeft" role="button" style="height:100px">
+            <strong>Spin Left</strong><br>
           </a>
           <a href="#" class="btn btn-danger stop" role="button" style="height:100px">
             <strong>Stop</strong><br>
           </a>
-          <a href="#" class="btn btn-primary backward" role="button" style="height:100px">
-            <strong>Backward</strong><br>
+          <a href="#" class="btn btn-primary spinRight" role="button" style="height:100px">
+            <strong>Spin Right</strong><br>
           </a>
         </div>
         <!-- third row -->
         <div class="btn-group btn-group-lg btn-group-justified btn-group-fill-height">
-          <a href="#" class="btn btn-primary forward" role="button" style="height:100px">
-            <strong>Forward</strong><br>
-          </a>
-          <a href="#" class="btn btn-danger stop" role="button" style="height:100px">
+          <a href="#" class="btn btn-default stop" role="button" style="height:100px">
             <strong>Stop</strong><br>
           </a>
           <a href="#" class="btn btn-primary backward" role="button" style="height:100px">
             <strong>Backward</strong><br>
+          </a>
+          <a href="#" class="btn btn-default stop" role="button" style="height:100px">
+            <strong>Stop</strong><br>
           </a>
         </div>
       </div>
@@ -133,11 +133,14 @@
     $( "a.forward" ).bind( "tap", forwardHandler );
     $( "a.stop" ).bind( "tap", stopHandler );
     $( "a.backward" ).bind( "tap", backwardHandler );
+    $( "a.spinLeft" ).bind( "tap", spinLeftHandler );
+    $( "a.spinRight" ).bind( "tap", spinRightHandler );
+
 
     function forwardHandler( event ){
       $.ajax({
         type: "GET",
-        url: "http://192.168.2.30:5000/forward/40",
+        url: "http://192.168.2.30:5000/forward/50",
         // data: {'seconds':'2','dutyCycle':'30'},
         // success: success,
         dataType: "json",
@@ -157,13 +160,32 @@
     function backwardHandler( event ){
       $.ajax({
         type: "GET",
-        url: "http://192.168.2.30:5000/backward/40",
+        url: "http://192.168.2.30:5000/backward/45",
         // data: {'seconds':'2','dutyCycle':'30'},
         // success: success,
         dataType: "json",
       });
     }
 
+    function spinLeftHandler( event ){
+      $.ajax({
+        type: "GET",
+        url: "http://192.168.2.30:5000/spinLeft/50",
+        // data: {'seconds':'2','dutyCycle':'30'},
+        // success: success,
+        dataType: "json",
+      });
+    }
+
+    function spinRightHandler( event ){
+      $.ajax({
+        type: "GET",
+        url: "http://192.168.2.30:5000/spinRight/50",
+        // data: {'seconds':'2','dutyCycle':'30'},
+        // success: success,
+        dataType: "json",
+      });
+    }
 
     
 

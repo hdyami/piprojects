@@ -131,7 +131,7 @@ if __name__ == "__main__":
     
     # ahhhh this calls the flask app! duhhhhh
     # only needed if invoking via python -m, not needed if invoked via flask run
-    app.run(host='192.168.2.30', debug=True)
+    app.run(host='192.168.2.30', debug=False)
     io.cleanup()
 
 # pibot_init()
