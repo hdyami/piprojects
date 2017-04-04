@@ -36,29 +36,29 @@ def forward(dC):
     print "forward"
     # set enable pin high
     io.output(SLP, io.HIGH)
-    # start pwm to both motors at 0 duty cycle
-    BIN1_pwm.start(0)
-    AIN1_pwm.start(0)
     # set duty cycle to whatever we pass as argument
-    BIN1_pwm.ChangeDutyCycle(dC)
     # drive the other pole of our dc motor low
     io.output(BIN2, io.LOW)
-    io.output(AIN2, io.LOW)
-    AIN1_pwm.ChangeDutyCycle(dC)
+    BIN1_pwm.start(dC+10)
+    time.sleep(.125)
+    BIN1_pwm.ChangeDutyCycle(dC)
 
+    io.output(AIN2, io.LOW)
+    AIN1_pwm.start(dC+10)
+    time.sleep(.125)
+    AIN1_pwm.ChangeDutyCycle(dC)
     return "forward"
 
 @app.route('/backward/<int:dC>')
 def backward(dC):
     print "backward"
     io.output(SLP, io.HIGH)
-    BIN2_pwm.start(0)
-    AIN2_pwm.start(0)
 
     io.output(BIN1, io.LOW)
-    BIN2_pwm.ChangeDutyCycle(dC)
-    AIN2_pwm.ChangeDutyCycle(dC)
+    BIN2_pwm.start(dC)
+    
     io.output(AIN1, io.LOW)
+    AIN2_pwm.start(dC)
 
     return "backward"
 
@@ -66,12 +66,15 @@ def backward(dC):
 def spinRight(dC):
     print "spinRight"
     io.output(SLP, io.HIGH)
-    BIN1_pwm.start(0)
-    AIN2_pwm.start(0)
 
     io.output(BIN2, io.LOW)
+    BIN1_pwm.start(dC+10)
+    time.sleep(.0625)
     BIN1_pwm.ChangeDutyCycle(dC)
+
     io.output(AIN1, io.LOW)
+    AIN2_pwm.start(dC+10)
+    time.sleep(.0625)
     AIN2_pwm.ChangeDutyCycle(dC)
 
     return "spinRight"
@@ -80,12 +83,15 @@ def spinRight(dC):
 def spinLeft(dC):
     print "spinLeft"
     io.output(SLP, io.HIGH)
-    BIN2_pwm.start(0)
-    AIN1_pwm.start(0)
 
     io.output(BIN1, io.LOW)
+    BIN2_pwm.start(dC+10)
+    time.sleep(.0625)
     BIN2_pwm.ChangeDutyCycle(dC)
+
     io.output(AIN2, io.LOW)
+    AIN1_pwm.start(dC+10)
+    time.sleep(.0625)
     AIN1_pwm.ChangeDutyCycle(dC)
 
     return "spinLeft"
@@ -131,7 +137,7 @@ if __name__ == "__main__":
     
     # ahhhh this calls the flask app! duhhhhh
     # only needed if invoking via python -m, not needed if invoked via flask run
-    app.run(host='192.168.2.30', debug=False)
+    app.run(host='192.168.2.30', debug=True)
     io.cleanup()
 
 # pibot_init()
