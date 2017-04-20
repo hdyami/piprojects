@@ -31,27 +31,28 @@ def stop():
     return "stop"
 
 
-@app.route('/forward/<int:dC>')
-def forward(dC):
-    print "forward"
+@app.route('/backward/<int:dC>')
+def backward(dC):
+    print "backward"
     # set enable pin high
     io.output(SLP, io.HIGH)
     # set duty cycle to whatever we pass as argument
     # drive the other pole of our dc motor low
     io.output(BIN2, io.LOW)
-    BIN1_pwm.start(dC+10)
-    time.sleep(.125)
+    BIN1_pwm.start(dC)
     BIN1_pwm.ChangeDutyCycle(dC)
 
-    io.output(AIN2, io.LOW)
-    AIN1_pwm.start(dC+10)
-    time.sleep(.125)
-    AIN1_pwm.ChangeDutyCycle(dC)
-    return "forward"
 
-@app.route('/backward/<int:dC>')
-def backward(dC):
-    print "backward"
+    io.output(AIN2, io.LOW)
+    AIN1_pwm.start(dC)
+    AIN1_pwm.ChangeDutyCycle(dC)
+
+
+    return "backward"
+
+@app.route('/forward/<int:dC>')
+def forward(dC):
+    print "forward"
     io.output(SLP, io.HIGH)
 
     io.output(BIN1, io.LOW)
@@ -60,7 +61,7 @@ def backward(dC):
     io.output(AIN1, io.LOW)
     AIN2_pwm.start(dC)
 
-    return "backward"
+    return "forward"
 
 @app.route('/spinRight/<int:dC>')
 def spinRight(dC):
@@ -68,14 +69,10 @@ def spinRight(dC):
     io.output(SLP, io.HIGH)
 
     io.output(BIN2, io.LOW)
-    BIN1_pwm.start(dC+10)
-    time.sleep(.0625)
-    BIN1_pwm.ChangeDutyCycle(dC)
+    BIN1_pwm.start(dC)
 
     io.output(AIN1, io.LOW)
-    AIN2_pwm.start(dC+10)
-    time.sleep(.0625)
-    AIN2_pwm.ChangeDutyCycle(dC)
+    AIN2_pwm.start(dC)
 
     return "spinRight"
 
@@ -85,14 +82,10 @@ def spinLeft(dC):
     io.output(SLP, io.HIGH)
 
     io.output(BIN1, io.LOW)
-    BIN2_pwm.start(dC+10)
-    time.sleep(.0625)
-    BIN2_pwm.ChangeDutyCycle(dC)
+    BIN2_pwm.start(dC)
 
     io.output(AIN2, io.LOW)
-    AIN1_pwm.start(dC+10)
-    time.sleep(.0625)
-    AIN1_pwm.ChangeDutyCycle(dC)
+    AIN1_pwm.start(dC)
 
     return "spinLeft"
 
@@ -119,21 +112,17 @@ if __name__ == "__main__":
     # initialize pwm so we only have to do ChangeDutyCycle later
     io.setup(BIN1, io.OUT)
     BIN1_pwm=io.PWM(BIN1,100)
-    # BIN1_pwm.start(0)
 
     io.setup(BIN2, io.OUT)
     BIN2_pwm=io.PWM(BIN2,100)
-    # BIN2_pwm.start(0)
 
     io.setup(SLP, io.OUT)
 
     io.setup(AIN2, io.OUT)
     AIN2_pwm=io.PWM(AIN2,100)
-    # AIN2_pwm.start(0)
 
     io.setup(AIN1, io.OUT)
     AIN1_pwm=io.PWM(AIN1,100)
-    # AIN1_pwm.start(0)
     
     # ahhhh this calls the flask app! duhhhhh
     # only needed if invoking via python -m, not needed if invoked via flask run

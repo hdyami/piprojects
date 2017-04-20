@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>Bootstrap 101 Template</title>
+    <title>PiBot Control</title>
 
     <!-- Bootstrap -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -16,6 +16,25 @@
       <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
+    <style type="text/css">
+      .garden {
+        position: relative;
+        width : 200px;
+        height: 200px;
+        border: 5px solid #CCC;
+        border-radius: 10px;
+      }
+
+      .ball {
+        position: absolute;
+        top   : 90px;
+        left  : 90px;
+        width : 20px;
+        height: 20px;
+        background: green;
+        border-radius: 100%;
+      }
+    </style>
   </head>
   <body>
     <h1 class="first"></h1>
@@ -62,7 +81,12 @@
         </div>
       </div>
     </div>
+    <h3>Hailu</h3>
+    <div class="garden">
+      <div class="ball"></div>
+    </div>
 
+    <pre class="output"></pre>
 
     <h2 class="wtf"></h2>
 
@@ -75,32 +99,48 @@
     <script src="js/bootstrap.min.js"></script>
     <script type="text/javascript">
 
-    // if (window.DeviceOrientationEvent) {
-    //     window.addEventListener("deviceorientation", function () {
-    //       $("h1.first").html("<div class='alpha'>"+event.alpha+"</div>")
-    //       $("h1.second").html("<div class='beta'>"+event.beta+"</div>")
-    //       $("h1.third").html("<div class='gamma'>"+event.gamma+"</div>")
-    //     }, true);
-    // } else if (window.DeviceMotionEvent) {
-    //     window.addEventListener('devicemotion', function () {
-    //         console.log(event.acceleration.x * 2);
-    //         console.log(event.acceleration.y * 2);
-    //     }, true);
-    // } else {
-    //     window.addEventListener("MozOrientation", function () {
-    //         tilt([orientation.x * 50, orientation.y * 50]);
-    //     }, true);
-    // }
+      // how many degrees off center to do nothing
+      var centerThresh = 12
+      // $("h2").html("<div class='wtf'>"+centerThresh+"</div>")
 
-    // how many degrees off center to do nothing
-    var centerThresh = 12
-    // $("h2").html("<div class='wtf'>"+centerThresh+"</div>")
-    if (window.DeviceOrientationEvent) {
+      var ball   = document.querySelector('.ball');
+      var garden = document.querySelector('.garden');
+      var output = document.querySelector('.output');
+
+      var maxX = garden.clientWidth  - ball.clientWidth;
+      var maxY = garden.clientHeight - ball.clientHeight;
+      
+      if (window.DeviceOrientationEvent) {
         window.addEventListener("deviceorientation", function () {
-            // $("h1.first").html("<div class='alpha'>"+event.alpha+"</div>")
-                var beta = Math.round(event.beta)
-                $("h2.wtf").html("<div class='beta'>"+beta+"</div>")
+          var beta = Math.round(event.beta)
 
+          // begin ball code
+          var x = event.beta;  // In degree in the range [-180,180]
+          var y = event.gamma; // In degree in the range [-90,90]
+
+          output.innerHTML  = "beta : " + x + "\n";
+          output.innerHTML += "gamma: " + y + "\n";
+
+          // Because we don't want to have the device upside down
+          // We constrain the x value to the range [-90,90]
+          if (x >  90) { x =  90};
+          if (x < -90) { x = -90};
+
+          // To make computation easier we shift the range of 
+          // x and y to [0,180]
+          x += 90;
+          y += 90;
+
+          if (x < centerThresh && y < centerThresh ) {
+              ball.style.background = red;
+          };
+
+          // 10 is half the size of the ball
+          // It center the positioning point to the center of the ball
+          ball.style.top  = (maxX*x/180 - 10) + "px";
+          ball.style.left = (maxY*y/180 - 10) + "px";
+
+          // end ball code
                 // tilting device toward you
                 // if (event.beta > centerThresh) {
                 //     $.ajax({
@@ -130,6 +170,8 @@
         }, true);
     }
 
+    var active = false;
+
     $( "a.forward" ).bind( "tap", forwardHandler );
     $( "a.stop" ).bind( "tap", stopHandler );
     $( "a.backward" ).bind( "tap", backwardHandler );
@@ -138,16 +180,26 @@
 
 
     function forwardHandler( event ){
+      if (active !== false) {
+        stopHandler();
+      };
+
+      active = "forward";
+
       $.ajax({
         type: "GET",
-        url: "http://192.168.2.30:5000/forward/50",
+        url: "http://192.168.2.30:5000/forward/25",
         // data: {'seconds':'2','dutyCycle':'30'},
         // success: success,
         dataType: "json",
       });
+
     }
 
     function stopHandler( event ){
+
+      active = false;
+
       $.ajax({
         type: "GET",
         url: "http://192.168.2.30:5000/stop",
@@ -155,22 +207,37 @@
         // success: success,
         dataType: "json",
       });
+
+
     }
 
     function backwardHandler( event ){
+      if (active !== false) {
+        stopHandler();
+      };
+
+      active = "backward";
+
       $.ajax({
         type: "GET",
-        url: "http://192.168.2.30:5000/backward/45",
+        url: "http://192.168.2.30:5000/backward/25",
         // data: {'seconds':'2','dutyCycle':'30'},
         // success: success,
         dataType: "json",
       });
+
     }
 
     function spinLeftHandler( event ){
+      if (active !== false) {
+        stopHandler();
+      };
+
+      active = "spinLeft";
+
       $.ajax({
         type: "GET",
-        url: "http://192.168.2.30:5000/spinLeft/50",
+        url: "http://192.168.2.30:5000/spinLeft/40",
         // data: {'seconds':'2','dutyCycle':'30'},
         // success: success,
         dataType: "json",
@@ -178,9 +245,15 @@
     }
 
     function spinRightHandler( event ){
+      if (active !== false) {
+        stopHandler();
+      };
+      
+      active = "spinRight";
+
       $.ajax({
         type: "GET",
-        url: "http://192.168.2.30:5000/spinRight/50",
+        url: "http://192.168.2.30:5000/spinRight/40",
         // data: {'seconds':'2','dutyCycle':'30'},
         // success: success,
         dataType: "json",
