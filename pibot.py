@@ -98,6 +98,12 @@ def pibot():
     print "hahhahah"
     return 'I am a robot!'
 
+def sensorADetect(SensA):
+    print "Sens A"
+
+def sensorBDetect(SensB):
+    print "Sens B"
+
 if __name__ == "__main__":
     # adafruit drv8833 breakout
     io.setmode(io.BCM)
@@ -108,6 +114,10 @@ if __name__ == "__main__":
     SLP = 13
     AIN2 = 6
     AIN1 = 5
+
+    # Define inputs to two sharp 10 cm prox sensors
+    SensA = 17
+    SensB = 18
 
     # initialize pwm so we only have to do ChangeDutyCycle later
     io.setup(BIN1, io.OUT)
@@ -123,6 +133,13 @@ if __name__ == "__main__":
 
     io.setup(AIN1, io.OUT)
     AIN1_pwm=io.PWM(AIN1,100)
+
+    # intialize sharp prox sensor inputs and callbacks
+    io.setup(SensA, io.IN, pull_up_down=io.PUD_DOWN)
+    io.setup(SensB, io.IN, pull_up_down=io.PUD_DOWN)
+
+    io.add_event_detect(SensA, io.RISING, callback=sensorADetect, bouncetime=100)
+    io.add_event_detect(SensB, io.RISING, callback=sensorBDetect, bouncetime=100)
     
     # ahhhh this calls the flask app! duhhhhh
     # only needed if invoking via python -m, not needed if invoked via flask run
