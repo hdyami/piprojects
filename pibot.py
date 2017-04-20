@@ -8,10 +8,18 @@ try:
 except RuntimeError:
     print("Error importing RPi.io!  This is probably because you need superuser privileges.  You can achieve this by using 'sudo' to run your script")
 from flask import Flask
-from flask import request
+from flask import request, redirect, url_for
 from pprint import pprint
 
 app = Flask(__name__)
+
+def sensorADetect(SensA):
+    stop()
+    return "Sensor A triggered"
+
+def sensorBDetect(SensB):
+    stop()
+    return "Sens B triggered"
 
 # stop all gpio
 @app.route('/stop')
@@ -27,6 +35,8 @@ def stop():
     AIN2_pwm.stop()
     BIN1_pwm.stop()
     AIN1_pwm.stop()
+
+    print "stop"
 
     return "stop"
 
@@ -96,13 +106,9 @@ def hello_world():
 @app.route('/pibot')
 def pibot():
     print "hahhahah"
-    return 'I am a robot!'
+    return 'I getting smarter!'
 
-def sensorADetect(SensA):
-    print "Sens A"
 
-def sensorBDetect(SensB):
-    print "Sens B"
 
 if __name__ == "__main__":
     # adafruit drv8833 breakout
@@ -138,12 +144,12 @@ if __name__ == "__main__":
     io.setup(SensA, io.IN, pull_up_down=io.PUD_DOWN)
     io.setup(SensB, io.IN, pull_up_down=io.PUD_DOWN)
 
-    io.add_event_detect(SensA, io.RISING, callback=sensorADetect, bouncetime=100)
-    io.add_event_detect(SensB, io.RISING, callback=sensorBDetect, bouncetime=100)
+    io.add_event_detect(SensA, io.BOTH, callback=sensorADetect, bouncetime=100)
+    io.add_event_detect(SensB, io.BOTH, callback=sensorBDetect, bouncetime=100)
     
     # ahhhh this calls the flask app! duhhhhh
     # only needed if invoking via python -m, not needed if invoked via flask run
-    app.run(host='192.168.2.30', debug=True)
+    app.run(host='192.168.2.30', debug=False)
     io.cleanup()
 
 # pibot_init()
