@@ -129,7 +129,7 @@ def sensorADetect(SensA):
 
     io.remove_event_detect(SensA)
     stop()
-    io.add_event_detect(SensA, io.RISING, callback=sensorARelease, bouncetime=500)
+    io.add_event_detect(SensA, io.RISING, callback=sensorARelease, bouncetime=200)
 
     return backward(35)
 
@@ -138,15 +138,15 @@ def sensorBDetect(SensB):
     
     io.remove_event_detect(SensB)
     stop()
-    io.add_event_detect(SensB, io.RISING, callback=sensorBRelease, bouncetime=500)
+    io.add_event_detect(SensB, io.RISING, callback=sensorBRelease, bouncetime=200)
 
     return backward(35)
 
 def sensorARelease(SensA):
     print "RIGHT sensor a RELEASE"
-    
-    io.remove_event_detect(SensB)
-    io.add_event_detect(SensA, io.FALLING, callback=sensorBDetect, bouncetime=500)
+
+    io.remove_event_detect(SensA)
+    io.add_event_detect(SensA, io.FALLING, callback=sensorADetect, bouncetime=200)
 
     return stop()
 
@@ -154,7 +154,7 @@ def sensorBRelease(SensB):
     print "LEFT sensor b RELEASE"
     
     io.remove_event_detect(SensB)
-    io.add_event_detect(SensB, io.FALLING, callback=sensorADetect, bouncetime=500)
+    io.add_event_detect(SensB, io.FALLING, callback=sensorADetect, bouncetime=200)
 
     return stop()
 
