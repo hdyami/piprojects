@@ -82,14 +82,14 @@
         </div>
         <!-- third row -->
         <div class="btn-group btn-group-lg btn-group-justified btn-group-fill-height">
-          <a href="#" class="btn btn-default stop" role="button" style="height:100px">
-            <strong>Stop</strong><br>
+          <a href="#" class="btn btn-default leftBack" role="button" style="height:100px">
+            <strong>Left Back</strong><br>
           </a>
           <a href="#" class="btn btn-primary backward" role="button" style="height:100px">
             <strong>Backward</strong><br>
           </a>
-          <a href="#" class="btn btn-default stop" role="button" style="height:100px">
-            <strong>Stop</strong><br>
+          <a href="#" class="btn btn-default rightBack" role="button" style="height:100px">
+            <strong>Right Back</strong><br>
           </a>
         </div>
       </div>
@@ -180,8 +180,8 @@
                
           // $("h1.third").html("<div class='gamma'>"+event.gamma+"</div>")
 
-        }, true);
-    }
+        // }, true);
+    // }
 
     var active = false;
 
@@ -190,6 +190,9 @@
     $( "a.backward" ).bind( "tap", backwardHandler );
     $( "a.spinLeft" ).bind( "tap", spinLeftHandler );
     $( "a.spinRight" ).bind( "tap", spinRightHandler );
+    $( "a.rightBack" ).bind( "tap", rightBackHandler );
+    $( "a.leftBack" ).bind( "tap", leftBackHandler );
+
 
 
     function forwardHandler( event ){
@@ -201,7 +204,7 @@
 
       $.ajax({
         type: "GET",
-        url: "http://192.168.2.30:5000/forward/50",
+        url: "http://192.168.2.30:5000/forward/45",
         // data: {'seconds':'2','dutyCycle':'30'},
         // success: success,
         dataType: "json",
@@ -233,7 +236,7 @@
 
       $.ajax({
         type: "GET",
-        url: "http://192.168.2.30:5000/backward/55",
+        url: "http://192.168.2.30:5000/backward/35",
         // data: {'seconds':'2','dutyCycle':'30'},
         // success: success,
         dataType: "json",
@@ -269,6 +272,34 @@
         url: "http://192.168.2.30:5000/spinRight/45",
         // data: {'seconds':'2','dutyCycle':'30'},
         // success: success,
+        dataType: "json",
+      });
+    }
+
+    function rightBackHandler( event ){
+      if (active !== false) {
+        stopHandler();
+      };
+      
+      active = "rightBack";
+
+      $.ajax({
+        type: "GET",
+        url: "http://192.168.2.30:5000/rightBack/40",
+        dataType: "json",
+      });
+    }
+
+    function leftBackHandler( event ){
+      if (active !== false) {
+        stopHandler();
+      };
+      
+      active = "leftBack";
+
+      $.ajax({
+        type: "GET",
+        url: "http://192.168.2.30:5000/leftBack/40",
         dataType: "json",
       });
     }

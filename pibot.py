@@ -16,6 +16,8 @@ app = Flask(__name__)
 # stop all gpio
 @app.route('/stop')
 def stop():
+    print "stop"
+
     io.output(SLP, io.LOW)
 
     io.output(BIN2, io.LOW)
@@ -28,7 +30,6 @@ def stop():
     BIN1_pwm.stop()
     AIN1_pwm.stop()
 
-    print "stop"
 
     return "stop"
 
@@ -67,10 +68,10 @@ def forward(dC):
 def spinRight(dC):
     print "spinRight"
     io.output(SLP, io.HIGH)
-
+    #right motor
     io.output(BIN2, io.LOW)
     BIN1_pwm.start(dC)
-
+    #left motor
     io.output(AIN1, io.LOW)
     AIN2_pwm.start(dC)
 
@@ -89,6 +90,26 @@ def spinLeft(dC):
 
     return "spinLeft"
 
+@app.route('/rightBack/<int:dC>')
+def rightBack(dC):
+    print "rightBack"
+    io.output(SLP, io.HIGH)
+    #right motor
+    io.output(BIN2, io.LOW)
+    BIN1_pwm.start(dC)
+
+    return "rightBack"
+
+@app.route('/leftBack/<int:dC>')
+def leftBack(dC):
+    print "leftBack"
+    io.output(SLP, io.HIGH)
+    #left motor
+    io.output(AIN2, io.LOW)
+    AIN1_pwm.start(dC)
+
+    return "leftBack"
+
 @app.route('/')
 def hello_world():
     return 'Hello, World!'
@@ -98,63 +119,44 @@ def pibot():
     print "hahhahah"
     return 'I getting smarter!'
 
-# @app.route('/stop')
-def stopauto():
-    io.output(SLP, io.LOW)
-
-    io.output(BIN2, io.LOW)
-    io.output(BIN1, io.LOW)
-    io.output(AIN1, io.LOW)
-    io.output(AIN2, io.LOW)
-
-    BIN2_pwm.stop()
-    AIN2_pwm.stop()
-    BIN1_pwm.stop()
-    AIN1_pwm.stop()
-
-    print "auto stop"
-    backward(85)
-    time.sleep(.25)
-    stop()
-    spinRight(55)
-    time.sleep(.5)
-    stop()
-    spinLeft(55)
-    time.sleep(.5)
-
-    return stop()
-
+# sharp proximity sensor edge detection!
+# currently if prox is sensed begin looking for that prox to drop away and move backwards
+# if that prox drops away, stop moving and go back to sensing for prox
+@app.route('/sensorADetect')
 def sensorADetect(SensA):
     print "RIGHT sensor a DETECT"
 
     io.remove_event_detect(SensA)
     stop()
-    io.add_event_detect(SensA, io.RISING, callback=sensorARelease, bouncetime=200)
+    io.add_event_detect(SensA, io.RISING, callback=sensorARelease, bouncetime=450)
 
-    return backward(35)
+    return leftBack(40)
 
+@app.route('/sensorBDetect')
 def sensorBDetect(SensB):
     print "LEFT sensor b DETECT"
     
     io.remove_event_detect(SensB)
     stop()
-    io.add_event_detect(SensB, io.RISING, callback=sensorBRelease, bouncetime=200)
+    io.add_event_detect(SensB, io.RISING, callback=sensorBRelease, bouncetime=450)
 
-    return backward(35)
+    return rightBack(40)
 
+@app.route('/sensorARelease')
 def sensorARelease(SensA):
     print "RIGHT sensor a RELEASE"
 
     io.remove_event_detect(SensA)
-    io.add_event_detect(SensA, io.FALLING, callback=sensorADetect, bouncetime=200)
+    io.add_event_detect(SensA, io.FALLING, callback=sensorADetect, bouncetime=450)
 
     return stop()
 
+@app.route('/sensorBDetectRelease')
 def sensorBRelease(SensB):
     print "LEFT sensor b RELEASE"
     
     io.remove_event_detect(SensB)
-    io.add_event_detect(SensB, io.FALLING, callback=sensorADetect, bouncetime=200)
+    io.add_event_detect(SensB, io.FALLING, callback=sensorBDetect, bouncetime=450)
 
     return stop()
 
@@ -163,10 +165,10 @@ if __name__ == "__main__":
     io.setmode(io.BCM)
 
     # Define Outputs to motors A and B SLP must be driven high to enable.
-    BIN1 = 26
+    BIN1 = 26 # BIN right motor #
     BIN2 = 19
     SLP = 13
-    AIN2 = 6
+    AIN2 = 6 # AIN left motor #
     AIN1 = 5
 
     # Define inputs to two sharp 10 cm prox sensors
@@ -195,8 +197,9 @@ if __name__ == "__main__":
     io.setup(SensA, io.IN, pull_up_down=io.PUD_DOWN)
     io.setup(SensB, io.IN, pull_up_down=io.PUD_DOWN)
 
-    io.add_event_detect(SensA, io.FALLING, callback=sensorADetect, bouncetime=500)
-    io.add_event_detect(SensB, io.FALLING, callback=sensorBDetect, bouncetime=500)
+    # these can be commented out to disable auto mode TODO make toggle in ui which can remove these event detects
+    io.add_event_detect(SensA, io.FALLING, callback=sensorADetect, bouncetime=450)
+    io.add_event_detect(SensB, io.FALLING, callback=sensorBDetect, bouncetime=450)
 
     # ahhhh this calls the flask app! duhhhhh
     # only needed if invoking via python -m, not needed if invoked via flask run
