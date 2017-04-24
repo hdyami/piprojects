@@ -114,13 +114,14 @@
       // initialize which mode am i in? variable
       var active = false;
 
-      $( "a.forward" ).bind( "tap", forwardHandler );
+      // bind handlers to ui buttons. also tell handler what to do
       $( "a.stop" ).bind( "tap", stopHandler );
-      $( "a.backward" ).bind( "tap", backwardHandler );
-      $( "a.spinLeft" ).bind( "tap", spinLeftHandler );
-      $( "a.spinRight" ).bind( "tap", spinRightHandler );
-      $( "a.rightBack" ).bind( "tap", rightBackHandler );
-      $( "a.leftBack" ).bind( "tap", leftBackHandler );
+      $( "a.forward" ).bind( "tap", {operation: "forward"}, pulseHandler );
+      $( "a.backward" ).bind( "tap", {operation: "backward"}, pulseHandler );
+      $( "a.spinLeft" ).bind( "tap", {operation: "spinLeft"}, pulseHandler );
+      $( "a.spinRight" ).bind( "tap", {operation: "spinRight"}, pulseHandler );
+      $( "a.rightBack" ).bind( "tap", {operation: "rightBack"}, pulseHandler );
+      $( "a.leftBack" ).bind( "tap", {operation: "leftBack"}, pulseHandler );
 
       // grab default dc value
       var dutyCycle = $("input#duty-cycle").val();
@@ -142,19 +143,18 @@
 
                                   }, 100));
 
-      function forwardHandler( event ){
+      function pulseHandler( event ){
         if (active !== false) {
           stopHandler();
         };
 
-        active = "forward";
+        active = event.data.operation;
 
         $.ajax({
           type: "GET",
           url: "http://192.168.2.30:5000/"+active+"/"+dutyCycle,
           dataType: "json",
         });
-
       }
 
       function stopHandler( event ){
@@ -169,78 +169,6 @@
           dataType: "json",
         });
 
-
-      }
-
-      function backwardHandler( event ){
-        if (active !== false) {
-          stopHandler();
-        };
-
-        active = "backward";
-
-        $.ajax({
-          type: "GET",
-          url: "http://192.168.2.30:5000/"+active+"/"+dutyCycle,
-          dataType: "json",
-        });
-
-      }
-
-      function spinLeftHandler( event ){
-        if (active !== false) {
-          stopHandler();
-        };
-
-        active = "spinLeft";
-
-        $.ajax({
-          type: "GET",
-          url: "http://192.168.2.30:5000/"+active+"/"+dutyCycle,
-          dataType: "json",
-        });
-      }
-
-      function spinRightHandler( event ){
-        if (active !== false) {
-          stopHandler();
-        };
-        
-        active = "spinRight";
-
-        $.ajax({
-          type: "GET",
-          url: "http://192.168.2.30:5000/"+active+"/"+dutyCycle,
-          dataType: "json",
-        });
-      }
-
-      function rightBackHandler( event ){
-        if (active !== false) {
-          stopHandler();
-        };
-        
-        active = "rightBack";
-
-        $.ajax({
-          type: "GET",
-          url: "http://192.168.2.30:5000/"+active+"/"+dutyCycle,
-          dataType: "json",
-        });
-      }
-
-      function leftBackHandler( event ){
-        if (active !== false) {
-          stopHandler();
-        };
-        
-        active = "leftBack";
-
-        $.ajax({
-          type: "GET",
-          url: "http://192.168.2.30:5000/"+active+"/"+dutyCycle,
-          dataType: "json",
-        });
       }
     </script>
   </body>
