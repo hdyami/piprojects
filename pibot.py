@@ -30,9 +30,7 @@ def stop():
     BIN1_pwm.stop()
     AIN1_pwm.stop()
 
-
     return "stop"
-
 
 @app.route('/backward/<int:dC>')
 def backward(dC):
@@ -156,6 +154,24 @@ def sensorBRelease(SensB):
     print "LEFT sensor b RELEASE"
     
     io.remove_event_detect(SensB)
+    io.add_event_detect(SensB, io.FALLING, callback=sensorBDetect, bouncetime=450)
+
+    return stop()
+
+@app.route('/sensorDisable')
+def sensorDisable():
+    print "Stopping sensor detection"
+    
+    io.remove_event_detect(SensB)
+    io.remove_event_detect(SensA)
+
+    return stop()
+
+@app.route('/sensorEnable')
+def sensorEnable():
+    print "Starting sensor detection"
+    
+    io.add_event_detect(SensA, io.FALLING, callback=sensorADetect, bouncetime=450)
     io.add_event_detect(SensB, io.FALLING, callback=sensorBDetect, bouncetime=450)
 
     return stop()

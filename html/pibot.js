@@ -1,14 +1,35 @@
 // https://remysharp.com/2010/07/21/throttling-function-calls
 function debounce(fn, delay) {
-var timer = null;
-return function () {
-  var context = this, args = arguments;
-  clearTimeout(timer);
-  timer = setTimeout(function () {
-    fn.apply(context, args);
-  }, delay);
-};
+    var timer = null;
+    return function () {
+      var context = this, args = arguments;
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        fn.apply(context, args);
+      }, delay);
+    };
 }
+
+// do things with settings buttons
+$("div.btn-group").change(function() {
+    // front sensor auto routines
+    var autostop = $("input.auto-stop").is(":checked");
+
+    // true if checked, false if not
+    if (autostop == true) {
+        $.ajax({
+            type: "GET",
+            url: "http://192.168.2.30:5000/sensorEnable",
+            dataType: "json",
+        });
+    } else {
+        $.ajax({
+            type: "GET",
+            url: "http://192.168.2.30:5000/sensorDisable",
+            dataType: "json",
+        });
+    };
+});
 
 // how many degrees off center to do nothing
 var centerThresh = 12;
@@ -28,22 +49,21 @@ $( "a.leftBack" ).bind( "tap", {operation: "leftBack"}, pulseHandler );
 // grab default dc value
 var dutyCycle = $("input#duty-cycle").val();
 
-// when the slider is slid, do things
+// when the slider is slid, do things but not too fast
 $("#div-slider").change(debounce(function() {
-                              // get the slider value
-                              dutyCycle = $("input#duty-cycle").val();
-                              // console.log(dutyCycle);
-                              // console.log(active);
-                              if (active !== false) {
-                                console.log(active)
+                            // get the slider value
+                            dutyCycle = $("input#duty-cycle").val();
+
+                            // only if we're going already, then update our speed
+                            if (active !== false) {
                                 $.ajax({
                                   type: "GET",
                                   url: "http://192.168.2.30:5000/"+active+"/"+dutyCycle,
                                   dataType: "json",
                                 });
-                              };
+                            };
 
-                          }, 100));
+                }, 100));
 
 function pulseHandler( event ){
     if (active !== false) {
