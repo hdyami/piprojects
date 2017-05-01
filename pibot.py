@@ -2,6 +2,7 @@
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
 import sys
 import time
+import picamera
 import simplejson as json
 try:
     import RPi.GPIO as io
@@ -29,6 +30,7 @@ def stop():
     AIN2_pwm.stop()
     BIN1_pwm.stop()
     AIN1_pwm.stop()
+    CAM_pwm.stop()
 
     return "stop"
 
@@ -41,11 +43,9 @@ def backward(dC):
     # drive the other pole of our dc motor low
     io.output(BIN2, io.LOW)
     BIN1_pwm.start(dC)
-    BIN1_pwm.ChangeDutyCycle(dC)
 
     io.output(AIN2, io.LOW)
     AIN1_pwm.start(dC)
-    AIN1_pwm.ChangeDutyCycle(dC)
 
     return "backward"
 
@@ -107,6 +107,27 @@ def leftBack(dC):
     AIN1_pwm.start(dC)
 
     return "leftBack"
+
+@app.route('/camAngle/<float:dC>')
+def camAngle(dC):
+    print "Cam Angle"
+    # change pulse to servo
+    CAM_pwm.start(dC)
+    CAM_pwm.ChangeDutyCycle(dC)
+    CAM_pwm.stop()
+
+    return "Cam Angle"
+
+@app.route('/picture')
+def picture():
+    print "Take picture"
+    # take a picture
+    camera = picamera.PiCamera()
+    # camera.hflip = True
+    # camera.vflip = True
+    camera.capture('captures/image.jpg')
+
+    return "Take picture"
 
 @app.route('/')
 def hello_world():
@@ -187,6 +208,7 @@ if __name__ == "__main__":
     AIN2 = 6 # AIN left motor #
     AIN1 = 5
 
+    CAM = 21 # pin for camera x axis servo
     # Define inputs to two sharp 10 cm prox sensors
     SensA = 17 # left
     SensB = 18 # right
@@ -206,6 +228,9 @@ if __name__ == "__main__":
     io.setup(AIN1, io.OUT)
     AIN1_pwm=io.PWM(AIN1,100)
 
+    io.setup(CAM, io.OUT)
+    CAM_pwm = io.PWM(CAM, 50)
+
     # intialize sharp prox sensor inputs and callbacks
     # when something is sensed, red light comes on and FALLING edge is detected.
     # when object is no longer sensed RISING edge is detected
@@ -214,12 +239,12 @@ if __name__ == "__main__":
     io.setup(SensB, io.IN, pull_up_down=io.PUD_DOWN)
 
     # these can be commented out to disable auto mode TODO make toggle in ui which can remove these event detects
-    io.add_event_detect(SensA, io.FALLING, callback=sensorADetect, bouncetime=450)
-    io.add_event_detect(SensB, io.FALLING, callback=sensorBDetect, bouncetime=450)
+    # io.add_event_detect(SensA, io.FALLING, callback=sensorADetect, bouncetime=450)
+    # io.add_event_detect(SensB, io.FALLING, callback=sensorBDetect, bouncetime=450)
 
     # ahhhh this calls the flask app! duhhhhh
     # only needed if invoking via python -m, not needed if invoked via flask run
-    app.run(host='192.168.2.30', debug=False)
+    app.run(host='192.168.2.30', debug=True)
     io.cleanup()
 
 # pibot_init()

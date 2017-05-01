@@ -38,6 +38,7 @@ var centerThresh = 12;
 var active = false;
 
 // bind handlers to ui buttons. also tell handler what to do
+$( "a.picture" ).bind( "tap", pictureHandler );
 $( "a.stop" ).bind( "tap", stopHandler );
 $( "a.forward" ).bind( "tap", {operation: "forward"}, pulseHandler );
 $( "a.backward" ).bind( "tap", {operation: "backward"}, pulseHandler );
@@ -50,7 +51,7 @@ $( "a.leftBack" ).bind( "tap", {operation: "leftBack"}, pulseHandler );
 var dutyCycle = $("input#duty-cycle").val();
 
 // when the slider is slid, do things but not too fast
-$("#div-slider").change(debounce(function() {
+$("#div-slider-speed").change(debounce(function() {
                             // get the slider value
                             dutyCycle = $("input#duty-cycle").val();
 
@@ -65,6 +66,23 @@ $("#div-slider").change(debounce(function() {
 
                 }, 100));
 
+// grab default cam angle value
+var camAngle = $("input#cam-angle").val();
+
+// when the slider is slid, do things but not too fast
+$("#div-slider-cam").change(debounce(function() {
+                            // get the slider value
+                            camAngle = $("input#cam-angle").val();
+
+                            // update the servo
+                            $.ajax({
+                              type: "GET",
+                              url: "http://192.168.2.30:5000/camAngle/"+camAngle,
+                              dataType: "json",
+                            });
+
+                }, 100));
+
 function pulseHandler( event ){
     if (active !== false) {
       stopHandler();
@@ -75,6 +93,18 @@ function pulseHandler( event ){
     $.ajax({
       type: "GET",
       url: "http://192.168.2.30:5000/"+active+"/"+dutyCycle,
+      dataType: "json",
+    });
+}
+
+function pictureHandler( event ){
+    active = false;
+
+    $.ajax({
+      type: "GET",
+      url: "http://192.168.2.30:5000/picture",
+      // data: {'seconds':'2','dutyCycle':'30'},
+      // success: success,
       dataType: "json",
     });
 }
