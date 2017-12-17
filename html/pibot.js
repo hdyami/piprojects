@@ -14,18 +14,34 @@ function debounce(fn, delay) {
 $("div.btn-group").change(function() {
     // front sensor auto routines
     var autostop = $("input.auto-stop").is(":checked");
+    var autogo = $("input.auto-go").is(":checked");
+
 
     // true if checked, false if not
-    if (autostop == true) {
+    if (autostop == false) {
         $.ajax({
             type: "GET",
-            url: "http://192.168.2.30:5000/sensorEnable",
+            url: "http://192.168.2.30:5000/autoStop/disable",
             dataType: "json",
         });
     } else {
         $.ajax({
             type: "GET",
-            url: "http://192.168.2.30:5000/sensorDisable",
+            url: "http://192.168.2.30:5000/autoStop/enable",
+            dataType: "json",
+        });
+    };
+    // true if checked, false if not
+    if (autogo == false) {
+        $.ajax({
+            type: "GET",
+            url: "http://192.168.2.30:5000/autoGo/disable",
+            dataType: "json",
+        });
+    } else {
+        $.ajax({
+            type: "GET",
+            url: "http://192.168.2.30:5000/autoGo/enable",
             dataType: "json",
         });
     };
@@ -73,15 +89,18 @@ var camAngle = $("input#cam-angle").val();
 $("#div-slider-cam").change(debounce(function() {
                             // get the slider value
                             camAngle = $("input#cam-angle").val();
+                            dC = (1/18) * camAngle + 2.5
+                            roundedDC = Math.round( dC * 10 ) / 10
+                            console.log(roundedDC)
 
                             // update the servo
                             $.ajax({
                               type: "GET",
-                              url: "http://192.168.2.30:5000/camAngle/"+camAngle,
+                              url: "http://192.168.2.30:5000/camAngle/"+dC,
                               dataType: "json",
                             });
 
-                }, 100));
+                }, 75));
 
 function pulseHandler( event ){
     if (active !== false) {
@@ -98,8 +117,6 @@ function pulseHandler( event ){
 }
 
 function pictureHandler( event ){
-    active = false;
-
     $.ajax({
       type: "GET",
       url: "http://192.168.2.30:5000/picture",

@@ -25,26 +25,18 @@
     <div class="container">
       <!-- begin toggles -->
       <div class="btn-group" data-toggle="buttons">
-        <label class="btn btn-primary active">
+        <label class="btn btn-primary">
           <input type="checkbox" class="auto-stop" autocomplete="off">Auto stop
         </label>
         <label class="btn btn-primary">
-          <input type="checkbox" autocomplete="off"> Checkbox 2
+          <input type="checkbox" class="auto-go" autocomplete="off"> Auto Go
         </label>
         <label class="btn btn-primary">
           <input type="checkbox" autocomplete="off"> Checkbox 3
         </label>
       </div>
       <!-- end toggles -->
-      <div class="btn-toolbar" role="toolbar">
-        <!-- first row -->
-        <div class="btn-group btn-group-lg btn-group-justified btn-group-fill-height">
-          <a href="#" class="btn btn-default picture" role="button" style="height:100px">
-            <strong>Take Picture</strong><br>
-          </a>
-        </div>
-      </div>
-    </div>
+
       <div class="btn-toolbar" role="toolbar">
         <!-- first row -->
         <div class="btn-group btn-group-lg btn-group-justified btn-group-fill-height">
@@ -90,7 +82,7 @@
     </div>
     <div id="div-slider-cam">
       <label for="cam-angle">Camera Angle:</label>
-      <input type="range" name="cam-angle" id="cam-angle" value="7.5" min="2.5" max="12.5" data-highlight="true">
+      <input type="range" name="cam-angle" id="cam-angle" value="90" min="0" max="180" data-highlight="true">
     </div>
     <!-- 
     <div class="garden">

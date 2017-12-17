@@ -30,7 +30,7 @@ def stop():
     AIN2_pwm.stop()
     BIN1_pwm.stop()
     AIN1_pwm.stop()
-    CAM_pwm.stop()
+    # CAM_pwm.stop()
 
     return "stop"
 
@@ -110,21 +110,23 @@ def leftBack(dC):
 
 @app.route('/camAngle/<float:dC>')
 def camAngle(dC):
-    print "Cam Angle"
+    # dC = (1/18) * dC + 2
+    # print str(dC)
     # change pulse to servo
-    CAM_pwm.start(dC)
-    CAM_pwm.ChangeDutyCycle(dC)
-    CAM_pwm.stop()
+    # CAM_pwm.start(dC)
+    # CAM_pwm.ChangeDutyCycle(dC)
+    # time.sleep(1)
+    # CAM_pwm.stop()
 
-    return "Cam Angle"
+    return "Cam Angle"+str(dC)
 
 @app.route('/picture')
 def picture():
     print "Take picture"
     # take a picture
     camera = picamera.PiCamera()
-    # camera.hflip = True
-    # camera.vflip = True
+    camera.hflip = True
+    camera.vflip = True
     camera.capture('captures/image.jpg')
 
     return "Take picture"
@@ -141,60 +143,115 @@ def pibot():
 # sharp proximity sensor edge detection!
 # currently if prox is sensed begin looking for that prox to drop away and move backwards
 # if that prox drops away, stop moving and go back to sensing for prox
-@app.route('/sensorADetect')
-def sensorADetect(SensA):
+@app.route('/sensorAautoStopDetect')
+def sensorAautoStopDetect(SensA):
     print "RIGHT sensor a DETECT"
 
     io.remove_event_detect(SensA)
     stop()
-    io.add_event_detect(SensA, io.RISING, callback=sensorARelease, bouncetime=450)
+    io.add_event_detect(SensA, io.RISING, callback=sensorAautoStopRelease, bouncetime=450)
 
-    return leftBack(40)
+    return stop()
 
-@app.route('/sensorBDetect')
-def sensorBDetect(SensB):
+@app.route('/sensorBautoStopDetect')
+def sensorBautoStopDetect(SensB):
     print "LEFT sensor b DETECT"
     
     io.remove_event_detect(SensB)
     stop()
-    io.add_event_detect(SensB, io.RISING, callback=sensorBRelease, bouncetime=450)
+    io.add_event_detect(SensB, io.RISING, callback=sensorBautoStopRelease, bouncetime=450)
 
-    return rightBack(40)
+    return stop()
 
-@app.route('/sensorARelease')
-def sensorARelease(SensA):
+@app.route('/sensorAautoStopRelease')
+def sensorAautoStopRelease(SensA):
     print "RIGHT sensor a RELEASE"
 
     io.remove_event_detect(SensA)
-    io.add_event_detect(SensA, io.FALLING, callback=sensorADetect, bouncetime=450)
+    io.add_event_detect(SensA, io.FALLING, callback=sensorAautoStopDetect, bouncetime=450)
 
-    return stop()
+    return "RIGHT sensor a RELEASE"
 
-@app.route('/sensorBDetectRelease')
-def sensorBRelease(SensB):
+@app.route('/sensorBautoStopRelease')
+def sensorBautoStopRelease(SensB):
     print "LEFT sensor b RELEASE"
     
     io.remove_event_detect(SensB)
-    io.add_event_detect(SensB, io.FALLING, callback=sensorBDetect, bouncetime=450)
+    io.add_event_detect(SensB, io.FALLING, callback=sensorBautoStopDetect, bouncetime=450)
 
-    return stop()
+    return "LEFT sensor b RELEASE"
 
-@app.route('/sensorDisable')
-def sensorDisable():
-    print "Stopping sensor detection"
+# Begin AutoGo
+@app.route('/sensorAautoGoDetect')
+def sensorAautoGoDetect(SensA):
+    print "RIGHT sensor a DETECT"
+
+    io.remove_event_detect(SensA)
+    stop()
+    io.add_event_detect(SensA, io.RISING, callback=sensorAautoGoRelease, bouncetime=450)
+
+    return spinLeft(40)
+    # return leftBack(40)
+
+@app.route('/sensorBautoGoDetect')
+def sensorBautoGoDetect(SensB):
+    print "LEFT sensor b DETECT"
     
     io.remove_event_detect(SensB)
-    io.remove_event_detect(SensA)
+    stop()
+    io.add_event_detect(SensB, io.RISING, callback=sensorBautoGoRelease, bouncetime=450)
 
+    return spinRight(40)
+    # return rightBack(40)
+
+@app.route('/sensorAautoGoRelease')
+def sensorAautoGoRelease(SensA):
+    print "RIGHT sensor a RELEASE"
+
+    io.remove_event_detect(SensA)
+    stop()
+    io.add_event_detect(SensA, io.FALLING, callback=sensorAautoGoDetect, bouncetime=450)
+
+    return forward(40)
+
+@app.route('/sensorBautoGoRelease')
+def sensorBautoGoRelease(SensB):
+    print "LEFT sensor b RELEASE"
+    
+    io.remove_event_detect(SensB)
+    stop()
+    io.add_event_detect(SensB, io.FALLING, callback=sensorBautoGoDetect, bouncetime=450)
+
+    return forward(40)
+     
+@app.route('/autoStop/<string:action>')
+def autoStop(action):
+    if action == "disable":
+        print "Stopping sensor detection"
+        
+        io.remove_event_detect(SensB)
+        io.remove_event_detect(SensA)
+    if action == "enable":
+        print "Starting sensor detection"
+
+        io.add_event_detect(SensA, io.FALLING, callback=sensorAautoStopDetect, bouncetime=450)
+        io.add_event_detect(SensB, io.FALLING, callback=sensorBautoStopDetect, bouncetime=450)
+    
     return stop()
 
-@app.route('/sensorEnable')
-def sensorEnable():
-    print "Starting sensor detection"
-    
-    io.add_event_detect(SensA, io.FALLING, callback=sensorADetect, bouncetime=450)
-    io.add_event_detect(SensB, io.FALLING, callback=sensorBDetect, bouncetime=450)
+@app.route('/autoGo/<string:action>')
+def autoGo(action):
+    if action == "disable":
+        print "Stopping sensor detection"
+        
+        io.remove_event_detect(SensB)
+        io.remove_event_detect(SensA)
+    if action == "enable":
+        print "Starting sensor detection"
 
+        io.add_event_detect(SensA, io.FALLING, callback=sensorAautoGoDetect, bouncetime=450)
+        io.add_event_detect(SensB, io.FALLING, callback=sensorBautoGoDetect, bouncetime=450)
+    
     return stop()
 
 if __name__ == "__main__":
@@ -230,6 +287,12 @@ if __name__ == "__main__":
 
     io.setup(CAM, io.OUT)
     CAM_pwm = io.PWM(CAM, 50)
+    # initialize position - otherwise it locks up way past 180??
+    CAM_pwm.start(6.5)
+    time.sleep(1)
+    CAM_pwm.stop()
+
+
 
     # intialize sharp prox sensor inputs and callbacks
     # when something is sensed, red light comes on and FALLING edge is detected.
